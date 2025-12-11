@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小鸿快租</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f8f8;
+            min-height: 100vh;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        /* 顶部导航栏 */
+        .top-nav {
+            background-color: #fff;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        .back-btn {
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+        
+        .nav-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        /* 计算器容器 */
+        .calculator-container {
+            background-color: #fff;
+            margin: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* 输入区域 */
+        .input-section, .input-group {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        /* 横向布局输入组 */
+        .input-group.horizontal, .input-section.horizontal {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .input-group.horizontal .input-label, .input-section.horizontal .input-label {
+            margin-bottom: 0;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .input-group.horizontal .input-field {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .input-section.horizontal .select-container {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .input-section.horizontal .select-container:last-child {
+            margin-right: 0;
+        }
+        
+        /* 输入标签 */
+        .input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 4px;
+        }
+        
+        /* 必填项标记 */
+        .required-mark {
+            color: #ff4d4f;
+        }
+        
+        /* 输入框样式 */
+        .input-field {
+            width: 100%;
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #004dab;
+        }
+        
+        /* 占位符文本样式 */
+        .input-field::placeholder {
+            color: #999;
+        }
+        
+        /* 选择器的占位符样式 */
+        .select-field:invalid {
+            color: #999;
+        }
+        
+        /* 选择器样式 */
+        .select-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .select-field {
+            width: 100%;
+            height: 36px;
+            padding: 0 30px 0 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #fff;
+            appearance: none;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        
+        .select-field:focus {
+            outline: none;
+            border-color: #004dab;
+        }
+        
+        /* 占位符选项样式 */
+        .placeholder-option {
+            color: #999;
+        }
+        
+        /* 下拉菜单选中项样式 */
+        option:checked {
+            background-color: #f0f0f0;
+        }
+        
+        .select-container::after {
+            content: "";
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        /* 费用总览区域 */
+        .overview-section {
+            padding: 12px 16px;
+            background-color: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .overview-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .overview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+        }
+        
+        .overview-label {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .overview-value {
+            font-size: 13px;
+            font-weight: normal;
+            color: #999;
+        }
+        
+        /* 费率百分比特殊样式 */
+        #interestRate {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        /* 账单详情区域 */
+        .bill-section {
+            padding: 12px 16px;
+        }
+        
+        .bill-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .bill-item:last-child {
+            border-bottom: none;
+        }
+        
+        .bill-label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .bill-value {
+            font-size: 13px;
+            font-weight: normal;
+            color: #666;
+        }
+        
+        /* 计算按钮 */
+        .calculate-btn {
+            width: calc(100% - 16px);
+            margin: 8px;
+            padding: 14px;
+            background-color: #004dab;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 77, 171, 0.2);
+        }
+        
+        /* 禁用状态的计算按钮 */
+        .calculate-btn:disabled {
+            background-color: #d9d9d9;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .calculate-btn:hover {
+            background-color: #005aae;
+        }
+        
+        .calculate-btn:active {
+            background-color: #003d82;
+        }
+        
+        /* 加载状态 */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* 错误信息 */
+        .error-message {
+            color: #ff4d4f;
+            font-size: 12px;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        
+        /* 隐藏元素 */
+        .hidden {
+            display: none;
+        }
+        
+        /* 金额格式化 */
+        .currency {
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 隐藏管理面板样式 */
+        .admin-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .admin-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+        }
+        
+        .admin-section {
+            margin-bottom: 20px;
+        }
+        
+        .admin-section h4 {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 16px;
+        }
+        
+        .ratio-list, .period-list {
+            margin-bottom: 15px;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+        }
+        
+        .list-item input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .remove-btn {
+            background-color: #ff4d4f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-btn {
+            background-color: #004dab;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .add-btn:hover {
+            background-color: #005aae;
+        }
+        
+        .add-btn:active {
+            background-color: #003d82;
+        }
+        
+        .save-btn {
+            background-color: #52c41a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .export-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+
+        .export-btn:hover {
+            background-color: #0b7dda;
+        }
+
+        /* 费率配置表样式 */
+        .rate-table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .rate-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .rate-table th,
+        .rate-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+        
+        .rate-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        
+        /* 服务成本表格样式 */
+        .service-cost-table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .service-cost-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .service-cost-table th,
+        .service-cost-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+        
+        .service-cost-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        
+        .rate-table input {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <!-- 计算器容器 -->
+    <div class="calculator-container">
+        <!-- 商品售价 -->
+        <div class="input-group horizontal">
+                <label for="productPrice" class="input-label"><span class="required-mark">* </span>商品售价：</label>
+                <input type="text" id="productPrice" class="input-field" placeholder="请输入价格">
+                <div id="priceError" class="error-message"></div>
+            </div>
+        
+        <!-- 选择方案 -->
+        <div class="input-section horizontal">
+            <label class="input-label"><span class="required-mark">* </span>选择方案：</label>
+            <div class="select-container">
+                <select id="downPaymentRatio" class="select-field">
+                    <option value="0.2">首付20％</option>
+                    <option value="0.3" selected>首付30％</option>
+                    <option value="0.35">首付35％</option>
+                    <option value="0.4">首付40％</option>
+                    <option value="0.45">首付45％</option>
+                    <option value="0.5">首付50％</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- 租期 -->
+        <div class="input-section horizontal">
+            <label class="input-label"><span class="required-mark">* </span>选择租期：</label>
+            <div class="select-container">
+                <select id="leasePeriod" class="select-field">
+                    <option value="" class="placeholder-option" selected>--请选择--</option>
+                    <option value="6">6期</option>
+                    <option value="10">10期</option>
+                    <option value="12">12期</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- 费用总览 -->
+        <div class="overview-section hidden">
+            <div class="overview-title">费用总览</div>
+            <div class="overview-item">
+                <span class="overview-label">总租金</span>
+                <span class="overview-value currency" id="totalAmountToPay">¥0.00元</span>
+            </div>
+
+        </div>
+        
+        <!-- 账单详情 -->
+        <div class="bill-section hidden">
+            <div class="bill-title">账单详情</div>
+            <div class="bill-item">
+                <span class="bill-label">首付</span>
+                <span class="bill-value currency" id="downPayment">¥0.00元</span>
+            </div>
+            <div class="bill-item hidden">
+                <span class="bill-label">待付租金金额</span>
+                <span class="bill-value currency" id="rentAmount">¥0.00元</span>
+            </div>
+            <div class="bill-item hidden">
+                <span class="bill-label">服务成本金额</span>
+                <span class="bill-value currency" id="serviceCost">¥0.00元</span>
+            </div>
+            <div class="bill-item hidden">
+                <span class="bill-label">剩余期数应付金额</span>
+                <span class="bill-value currency" id="totalAmountToPayDetail">¥0.00元</span>
+            </div>
+            <div id="installmentList"></div>
+        </div>
+    </div>
+    
+    <!-- 计算按钮 -->
+        <button id="calculateBtn" class="calculate-btn disabled" disabled>开始计算</button>
+        
+        <!-- 隐藏的修改费率功能 -->
+        <div id="adminPanel" class="admin-panel" style="display: none;">
+            <div class="admin-header">
+                <h3>高级费率配置</h3>
+                <button id="closeAdminPanel" class="close-btn">关闭</button>
+            </div>
+            
+            <!-- 首付比例管理 -->
+            <div class="admin-section">
+                <h4>首付比例管理</h4>
+                <div class="ratio-list" id="ratioList">
+                    <!-- 动态生成首付比例选项 -->
+                </div>
+                <button id="addRatioBtn" class="add-btn">添加首付比例</button>
+            </div>
+            
+            <!-- 租期管理 -->
+            <div class="admin-section">
+                <h4>租期管理</h4>
+                <div class="period-list" id="periodList">
+                    <!-- 动态生成租期选项 -->
+                </div>
+                <button id="addPeriodBtn" class="add-btn">添加租期</button>
+            </div>
+            
+            <!-- 服务成本设置 -->
+            <div class="admin-section">
+                <h4>服务成本设置</h4>
+                <p>根据商品售价-首付后的金额区间设置服务成本</p>
+                <div id="serviceCostTable" class="service-cost-table-container">
+                    <table class="service-cost-table">
+                        <tr><th>金额区间</th><th>服务成本（元）</th></tr>
+                        <tr><td>1000 - 1350元</td><td><input type="number" step="1" value="320" id="cost1000"></td></tr>
+                        <tr><td>1350 - 1700元</td><td><input type="number" step="1" value="290" id="cost1350"></td></tr>
+                        <tr><td>1700 - 2050元</td><td><input type="number" step="1" value="270" id="cost1700"></td></tr>
+                        <tr><td>2050 - 2400元</td><td><input type="number" step="1" value="230" id="cost2050"></td></tr>
+                        <tr><td>2400 - 2750元</td><td><input type="number" step="1" value="250" id="cost2400"></td></tr>
+                        <tr><td>2750 - 3100元</td><td><input type="number" step="1" value="160" id="cost2750"></td></tr>
+                        <tr><td>3100 - 3450元</td><td><input type="number" step="1" value="180" id="cost3100"></td></tr>
+                        <tr><td>3450 - 3800元</td><td><input type="number" step="1" value="170" id="cost3450"></td></tr>
+                        <tr><td>3800 - 4150元</td><td><input type="number" step="1" value="163" id="cost3800"></td></tr>
+                        <tr><td>4150 - 4500元</td><td><input type="number" step="1" value="150" id="cost4150"></td></tr>
+                        <tr><td>4500 - 4850元</td><td><input type="number" step="1" value="170" id="cost4500"></td></tr>
+                        <tr><td>4850 - 5200元</td><td><input type="number" step="1" value="150" id="cost4850"></td></tr>
+                        <tr><td>5200 - 5550元</td><td><input type="number" step="1" value="158" id="cost5200"></td></tr>
+                        <tr><td>5550 - 5900元</td><td><input type="number" step="1" value="130" id="cost5550"></td></tr>
+                        <tr><td>5900 - 6250元</td><td><input type="number" step="1" value="6" id="cost5900"></td></tr>
+                        <tr><td>6250 - 6600元</td><td><input type="number" step="1" value="120" id="cost6250"></td></tr>
+                        <tr><td>6600 - 6950元</td><td><input type="number" step="1" value="150" id="cost6600"></td></tr>
+                        <tr><td>6950 - 7300元</td><td><input type="number" step="1" value="140" id="cost6950"></td></tr>
+                        <tr><td>7300 - 7650元</td><td><input type="number" step="1" value="37" id="cost7300"></td></tr>
+                        <tr><td>7650 - 8000元</td><td><input type="number" step="1" value="150" id="cost7650"></td></tr>
+                        <tr><td>8000 - 8350元</td><td><input type="number" step="1" value="180" id="cost8000"></td></tr>
+                        <tr><td>8350 - 8700元</td><td><input type="number" step="1" value="210" id="cost8350"></td></tr>
+                        <tr><td>8700 - 9000元</td><td><input type="number" step="1" value="236" id="cost8700"></td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 费率配置表（首付比例 × 租期） -->
+            <div class="admin-section">
+                <h4>费率配置表（首付比例 × 租期）</h4>
+                <div id="rateTable" class="rate-table-container"></div>
+            </div>
+            
+            <!-- 导出设置 -->
+            <div class="admin-section">
+                <h4>导出设置</h4>
+                <p>点击下方按钮导出当前设置为代码文件，方便同步到项目中：</p>
+                <button id="exportSettingsBtn" class="export-btn">导出设置代码</button>
+                <div id="exportMessage" class="export-message" style="display: none; color: green; margin-top: 10px;"></div>
+            </div>
+
+            <!-- 保存按钮 -->
+            <button id="saveSettingsBtn" class="save-btn">保存设置</button>
+        </div>
+
+    <script src="product-calculator.js"></script>
+</body>
+</html>
